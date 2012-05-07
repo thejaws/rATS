@@ -5,6 +5,7 @@ module Atest
   end
 
   def setup(info, &block)
+    @test_receipt.started
     say "Setup"
     yield
     say "Setup done"
@@ -32,6 +33,9 @@ module Atest
   end
 
   def finish(info, &block)
+    @test_receipt.finished(info)
+    retval = yield
+    return retval
   end
 end
 
