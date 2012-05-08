@@ -1,22 +1,30 @@
 module Atest
   def say(msg)
-    msg = "[#{Time.now}] #{msg}"
+    indent = " " * @indent_level
+    msg = "[#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}]#{indent} #{msg}"
     puts msg
   end
 
   def setup(info, &block)
     @test_receipt.started
     say "Setup"
-    yield
+    retval = yield
     say "Setup done"
+    return retval
   end
 
   def start(info, &block)
+    say info
+    retval = yield
+    return retval
+    say "Started"
   end
 
   def test_step(info, &block)
     say ">Test step: #{info}"
+    @indent_level += 2
     retval = yield
+    @indent_level -= 2
     say "=Test step: #{info}"
     return retval
   end
@@ -32,9 +40,9 @@ module Atest
     return retval
   end
 
-  def finish(info, &block)
+  def finish(info)
     @test_receipt.finished(info)
-    retval = yield
+    retval = yield if block_given?
     return retval
   end
 end

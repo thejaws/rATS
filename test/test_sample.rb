@@ -1,50 +1,40 @@
 $: << 'lib'
+$: << File.dirname(__FILE__)
+
 require 'rats'
 require 'selenium-webdriver'
+require 'system_under_test'
 
-class TestReceipt
-  def initialize(title)
-    @title = title
-    @check_points = {}
-  end
-
-  def started
-    @start_time = Time.now
-  end
-
-  def finished
-    @finish_time = Time.now
-  end
-
-  def check_point(info, retval)
-    @check_points[info] = retval
-  end
-end
 
 class SmokeTest
   include Atest 
+
   def initialize(title)
     @test_receipt = TestReceipt.new(title)
-  end
-  
-  def create_browser
-    @browser = Selenium::WebDriver.for :ff
+    @indent_level = 0
+  end 
+
+  def create_sut
+    @sut = SystemUnderTest.new
   end
 
-  def goto(url)
-    @browser.navigate.to('http://tv.nrk.no')
-    check_point("should go to #{url}"){@browser.current_url == 'http://tv.nrk.no'} 
+  def test_addition
+    check_point("Add two numbers:"){1+2 == @sut.add(1,2)}
+    check_point("Addition order doesn't matter"){@sut.add(31,1) == @sut.add(1,31)}
+    check_point("This one should fail") do
+      @sut.add(31,1) == @sut.add(31,2)
+    end
+  end
+
+  def test_subtraction
+    check_point("Subtract two numbers"){@sut.sub(31,0) == 31}
   end
 
   def execute_test
-    setup("Setting up"){create_browser}
-
-    test_step("Goto tv.NRK.NO"){goto('http://tv.nrk.no')}
-    test_step("Goto radio.NRK.NO"){goto('http://tv.nrk.no')}
-
-    finish("Closing down browser") do
-      @browser.quit
-    end
+    setup("Setting up")     {create_sut}
+    test_step("Addition")   {test_addition}
+    test_step("Subtraction"){test_subtraction}
+    finish("Done")
   end
 end
 
