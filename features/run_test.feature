@@ -15,4 +15,4 @@ Feature: Running a system test or integration test
     Given a test that is an external script
     Then the script output should serve as the test log
     And the test steps with results should be inferred from the test log
-    And test result should be inferred from the test exit state
+    And test result should be inferred from the test exit state 
